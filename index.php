@@ -90,6 +90,32 @@ function get_page_title($url)
 
     return null;
 }
+
+/**
+ * Обрезает текстовое содержимое поста, если оно превышает заданное количество символов, и возвращает HTML-разметку содержимого поста.
+ *
+ * @param string $text   Строка с текстом
+ * @param int    $length Максимальное число символов в строке
+ *
+ * @return string HTML-разметка содержимого поста
+ */
+function get_cutted_post_markup($text, $length = 300)
+{
+    if (mb_strlen($text) <= $length) {
+        return '<p>'.htmlspecialchars($text).'</p>';
+    }
+
+    $words = explode(' ', $text);
+    $current_length = 0;
+    $i = 0;
+    while (($current_length - 1) <= $length && isset($words[$i])) {
+        $current_length += mb_strlen($words[$i]) + 1;
+        ++$i;
+    }
+    $cutted_text = implode(' ', array_slice($words, 0, $i - 1)).'...';
+
+    return '<p>'.htmlspecialchars($cutted_text).'</p><a class="post-text__more-link" href="#">Читать далее</a>';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -339,9 +365,7 @@ function get_page_title($url)
                     </div>
                 <?php break; ?>
                 <?php case 'post-text': ?>
-                    <p>
-                        <?= htmlspecialchars($post['text']); ?>
-                    </p>
+                    <?= get_cutted_post_markup($post['text']); ?>
                 <?php break; ?>
                 <?php endswitch; ?>
                 </div>
