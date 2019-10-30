@@ -1,7 +1,7 @@
 <?php
 $is_auth = rand(0, 1);
-
 $user_name = 'John Doe';
+$max_preview_text_length = 300;
 
 $popular_posts = [
     [
@@ -20,7 +20,7 @@ $popular_posts = [
         'type' => 'post-text',
         'author_name' => 'Владик',
         'author_avatar' => 'userpic.jpg',
-        'text' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
+        'text' => 'Не могу дождаться начала финального сезона своего любимого сериала! Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum illum odio quas aliquam ea maxime quaerat, ducimus architecto illo dignissimos a labore. Non dignissimos consectetur eveniet, ipsam vitae laudantium exercitationem modi tempore ipsum alias rem aspernatur laborum quod esse veritatis doloremque libero. Odio dolores eaque libero perspiciatis consequuntur adipisci culpa. Porro laudantium eius velit eaque nam aut necessitatibus? Cumque magni quod alias autem tenetur nemo modi magnam assumenda dicta suscipit neque repellendus, impedit beatae unde accusantium.',
         'quote_author' => null,
         'img' => null,
         'video' => null,
@@ -92,17 +92,17 @@ function get_page_title($url)
 }
 
 /**
- * Обрезает текстовое содержимое поста, если оно превышает заданное количество символов, и возвращает HTML-разметку содержимого поста.
+ * Обрезает строку с текстом, если ее длина превышает заданное количество символов.
  *
  * @param string $text   Строка с текстом
  * @param int    $length Максимальное число символов в строке
  *
- * @return string HTML-разметка содержимого поста
+ * @return string Строка с урезанным текстом
  */
-function get_cutted_post_markup($text, $length = 300)
+function cut_text($text, $length = 300)
 {
     if (mb_strlen($text) <= $length) {
-        return '<p>'.htmlspecialchars($text).'</p>';
+        return $text;
     }
 
     $words = explode(' ', $text);
@@ -114,7 +114,7 @@ function get_cutted_post_markup($text, $length = 300)
     }
     $cutted_text = implode(' ', array_slice($words, 0, $i - 1)).'...';
 
-    return '<p>'.htmlspecialchars($cutted_text).'</p><a class="post-text__more-link" href="#">Читать далее</a>';
+    return $cutted_text;
 }
 ?>
 <!DOCTYPE html>
@@ -365,7 +365,12 @@ function get_cutted_post_markup($text, $length = 300)
                     </div>
                 <?php break; ?>
                 <?php case 'post-text': ?>
-                    <?= get_cutted_post_markup($post['text']); ?>
+                    <p>
+                        <?= htmlspecialchars(cut_text($post['text'], $max_preview_text_length)); ?>
+                    </p>
+                    <?php if (mb_strlen($post['text']) > $max_preview_text_length): ?>
+                    <a class="post-text__more-link" href="#">Читать далее</a>
+                    <?php endif; ?>
                 <?php break; ?>
                 <?php endswitch; ?>
                 </div>
